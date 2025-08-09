@@ -17,14 +17,15 @@ def chunks(my_list, n):
     for i in range(0, len(my_list), n):
         yield my_list[i:i + n]
 
-class Pool:
-    def __init__(self, pool):
-        self.url, self.comment = read_pools(pool, 'test')
-
 class CheckRemotes:
     def __init__(self):
         self.number_of_pools = 3
-        self.pools = [Pool(pool) for pool in range(self.number_of_pools)]
+        url_list: list[str]
+        comment_list: list[str]
+        self.pools: list[tuple[list[str], list[str]]] = []
+        for pool_idx in range(self.number_of_pools):
+            url_list, comment_list = read_pools(pool_idx, 'test')
+            self.pools.append((url_list, comment_list))
         self.proxy_ip, self.proxy_port = proxy_settings()
 
     def loop(self):

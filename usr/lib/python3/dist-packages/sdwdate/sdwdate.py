@@ -3,15 +3,15 @@
 # Copyright (C) 2017 - 2025 ENCRYPTED SUPPORT LLC <adrelanos@whonix.org>
 # See the file COPYING for copying conditions.
 
-from __future__ import print_function
-
 import sys
+
 sys.dont_write_bytecode = True
 
 from pathlib import Path
 import json
 import subprocess
 from subprocess import Popen
+
 # from random import randint
 import secrets
 from datetime import datetime
@@ -23,15 +23,16 @@ import logging
 import shlex
 import threading
 import sdnotify
+from types import FrameType
 from guimessages.translations import _translations
-from sdwdate.proxy_settings import proxy_settings
-from sdwdate.config import read_pools
-from sdwdate.config import allowed_failures_config
-from sdwdate.config import allowed_failures_calculate
-from sdwdate.config import time_human_readable
-from sdwdate.config import time_replay_protection_file_read
-from sdwdate.config import randomize_time_config
-from sdwdate.remote_times import get_time_from_servers
+from .proxy_settings import proxy_settings
+from .config import read_pools
+from .config import allowed_failures_config
+from .config import allowed_failures_calculate
+from .config import time_human_readable
+from .config import time_replay_protection_file_read
+from .config import randomize_time_config
+from .remote_times import get_time_from_servers
 from sanitize_string.sanitize_string import sanitize_string
 
 
@@ -45,8 +46,8 @@ SDNOTIFY_OBJECT.notify("READY=1")
 SDNOTIFY_OBJECT.notify("STATUS=Starting...")
 
 
-def write_status(icon, msg):
-    status = {"icon": "", "message": ""}
+def write_status(icon, msg) -> None:
+    status: dict[str, str] = {"icon": "", "message": ""}
     status["icon"] = icon
     status["message"] = msg
 
@@ -55,7 +56,9 @@ def write_status(icon, msg):
             json.dump(status, file_object)
             file_object.close()
     except BaseException:
-        error_msg = "write_status unexpected error: " + str(sys.exc_info()[0])
+        error_msg: str = (
+            f"write_status unexpected error: {str(sys.exc_info()[0])}"
+        )
         print(error_msg)
         return
 
@@ -64,7 +67,8 @@ def write_status(icon, msg):
         msgf.close()
 
 
-def kill_sclockadj():
+def kill_sclockadj() -> None:
+    message: str
     try:
         sclockadj_process.kill()
         message = "Terminated sclockadj process."
@@ -74,7 +78,8 @@ def kill_sclockadj():
         LOGGER.info(message)
 
 
-def kill_sleep_process():
+def kill_sleep_process() -> None:
+    message: str
     try:
         sleep_process.kill()
         message = "Terminated sleep process."
@@ -83,31 +88,27 @@ def kill_sleep_process():
         message = "sleep process not running, ok."
         LOGGER.info(message)
 
-
-def signal_handler(sig, frame):
-    message = translate_object("sigterm")
-    stripped_message = sanitize_string(message)
+#pylint: disable=unused-argument
+def signal_handler(sig: int, frame: FrameType) -> None:
+    message: str = translate_object("sigterm")
+    stripped_message: str = sanitize_string(message)
     LOGGER.info(stripped_message)
-    reason = "signal_handler called"
-    exit_code = 128 + sig
+    reason: str = "signal_handler called"
+    exit_code: int = 128 + sig
     exit_handler(exit_code, reason)
 
 
-def exit_handler(exit_code, reason):
+def exit_handler(exit_code: int, reason: str) -> None:
     SDNOTIFY_OBJECT.notify("STATUS=Shutting down...")
     SDNOTIFY_OBJECT.notify("WATCHDOG=1")
     SDNOTIFY_OBJECT.notify("STOPPING=1")
 
-    message = (
-        "Exiting with exit_code '"
-        + str(exit_code)
-        + "' because or reason '"
-        + reason
-        + "'."
+    message: str = (
+        f"Exiting with exit_code '{exit_code}' because of reason '{reason}'."
     )
     LOGGER.info(message)
 
-    icon = "error"
+    icon: str = "error"
     message = "sdwdate stopped by user or system."
     LOGGER.info(message)
     write_status(icon, message)
@@ -149,7 +150,7 @@ class SdwdateClass(object):
         self.allowed_failures = allowed_failures_calculate(
             self.failure_ratio_from_config,
             self.number_of_pools,
-            total_number_pool_member
+            total_number_pool_member,
         )
 
         self.list_of_urls_returned = []
@@ -182,7 +183,6 @@ class SdwdateClass(object):
         self.unixtime_before_sleep = 0
         self.sleep_time_seconds = 0
 
-
     def preparation(self):
         message = ""
         previous_messsage = ""
@@ -195,14 +195,14 @@ class SdwdateClass(object):
                 loop_counter = 0
             loop_counter += 1
             msg = (
-                     "STATUS=Running sdwdate preparation loop. \
-                     preparation_sleep_seconds: " +
-                     str(preparation_sleep_seconds) +
-                     " iteration: " +
-                     str(loop_counter) +
-                     " / " +
-                     str(loop_max)
-                  )
+                "STATUS=Running sdwdate preparation loop. \
+                     preparation_sleep_seconds: "
+                + str(preparation_sleep_seconds)
+                + " iteration: "
+                + str(loop_counter)
+                + " / "
+                + str(loop_max)
+            )
             SDNOTIFY_OBJECT.notify(msg)
 
             # Wait one second after first failure. Two at second failure etc.
@@ -213,10 +213,12 @@ class SdwdateClass(object):
             if preparation_sleep_seconds >= 10:
                 preparation_sleep_seconds = 10
 
-            preparation_path = "/usr/libexec/helper-scripts/onion-time-pre-script"
+            preparation_path = (
+                "/usr/libexec/helper-scripts/onion-time-pre-script"
+            )
             preparation_status = subprocess.Popen(
-                preparation_path, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+                preparation_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
 
             stdout, stderr = preparation_status.communicate()
             preparation_status.kill()
@@ -247,13 +249,19 @@ class SdwdateClass(object):
 
             if preparation_status.returncode == 1:
                 icon = "error"
-                LOGGER.info("PREPARATION RESULT: onion-time-pre-script detected a known permanent (until the user fixes it) error status. Consider running systemcheck for more information.")
+                LOGGER.info(
+                    "PREPARATION RESULT: onion-time-pre-script detected a known permanent (until the user fixes it) error status. Consider running systemcheck for more information."
+                )
             elif preparation_status.returncode == 2:
                 icon = "busy"
-                LOGGER.info("PREPARATION RESULT: onion-time-pre-script recommended to wait. Consider running systemcheck for more information.")
+                LOGGER.info(
+                    "PREPARATION RESULT: onion-time-pre-script recommended to wait. Consider running systemcheck for more information."
+                )
             else:
                 icon = "error"
-                LOGGER.info("PREPARATION RESULT: onion-time-pre-script detected a unknown permanent (until the user fixes it) error status. Consider running systemcheck for more information.")
+                LOGGER.info(
+                    "PREPARATION RESULT: onion-time-pre-script detected a unknown permanent (until the user fixes it) error status. Consider running systemcheck for more information."
+                )
 
             LOGGER.info("\n")
             # https://phabricator.whonix.org/T534#15429
@@ -268,7 +276,6 @@ class SdwdateClass(object):
             preparation_sleep_seconds = 1
             time.sleep(preparation_sleep_seconds)
 
-
     @staticmethod
     def general_timeout_error(pools):
         """
@@ -276,13 +283,12 @@ class SdwdateClass(object):
         """
         returned_error = "timeout"
         if (
-                pools[0] == returned_error
-                and pools[1] == returned_error
-                and pools[2] == returned_error
+            pools[0] == returned_error
+            and pools[1] == returned_error
+            and pools[2] == returned_error
         ):
             return True
         return False
-
 
     def build_median(self):
         """
@@ -290,20 +296,22 @@ class SdwdateClass(object):
         """
         sorted_request_took_times = sorted(self.request_took_times.values())
         sorted_request_half_took_times = sorted(
-            self.half_took_time_float.values())
+            self.half_took_time_float.values()
+        )
         diffs_raw = sorted(self.list_of_pools_raw_diff)
         diffs_lag_cleaned = sorted(self.pools_lag_cleaned_diff)
-        message = "     request_took_times, sorted: %s" % \
-            sorted_request_took_times
+        message = (
+            "     request_took_times, sorted: %s" % sorted_request_took_times
+        )
         LOGGER.info(message)
-        message = "request_half_took_times, sorted: %s" % \
-            sorted_request_half_took_times
+        message = (
+            "request_half_took_times, sorted: %s"
+            % sorted_request_half_took_times
+        )
         LOGGER.info(message)
-        message = "          time_diff_raw, sorted: %s" % \
-            diffs_raw
+        message = "          time_diff_raw, sorted: %s" % diffs_raw
         LOGGER.info(message)
-        message = "      diffs_lag_cleaned, sorted: %s" % \
-            diffs_lag_cleaned
+        message = "      diffs_lag_cleaned, sorted: %s" % diffs_lag_cleaned
         LOGGER.info(message)
         median_took_times = sorted_request_took_times[
             (len(sorted_request_took_times) // 2)
@@ -315,11 +323,13 @@ class SdwdateClass(object):
         self.median_diff_lag_cleaned_in_seconds = diffs_lag_cleaned[
             (len(diffs_lag_cleaned) // 2)
         ]
-        message = "median          request_took_times: %+.2f" % \
-            median_took_times
+        message = (
+            "median          request_took_times: %+.2f" % median_took_times
+        )
         LOGGER.info(message)
-        message = "median     half_request_took_times: %+.2f" % \
-            median_half_took_times
+        message = (
+            "median     half_request_took_times: %+.2f" % median_half_took_times
+        )
         LOGGER.info(message)
         message = (
             "median         raw time difference: %+.2f"
@@ -332,7 +342,6 @@ class SdwdateClass(object):
         )
         LOGGER.info(message)
 
-
     def time_replay_protection_file_write(self):
         time_now_utc_unixtime = time.time()
         # Example time_now_utc_unixtime:
@@ -343,8 +352,7 @@ class SdwdateClass(object):
         time_now_utc_unixtime = int(time_now_utc_unixtime)
         # Example time_now_utc_unixtime:
         # 1611095028
-        with open(sdwdate_time_replay_protection_utc_unixtime, "w") \
-                as trpuu:
+        with open(sdwdate_time_replay_protection_utc_unixtime, "w") as trpuu:
             message = (
                 "Time Replay Protection: write "
                 + str(time_now_utc_unixtime)
@@ -370,7 +378,6 @@ class SdwdateClass(object):
             trpuh.write(str(time_now_utc_human_readable))
             trpuh.close()
 
-
     def set_new_time(self):
         status_first_success = os.path.exists(status_first_success_path)
         clock_jump_do = os.path.exists(clock_jump_do_once_file)
@@ -380,26 +387,24 @@ class SdwdateClass(object):
         old_unixtime_int = int(old_unixtime_int)
         old_unixtime_str = format(old_unixtime_float, ".9f")
 
-        new_unixtime_float = float(
-            old_unixtime_float) + float(self.new_diff_in_seconds)
+        new_unixtime_float = float(old_unixtime_float) + float(
+            self.new_diff_in_seconds
+        )
         new_unixtime_int = round(new_unixtime_float)
         new_unixtime_int = int(new_unixtime_int)
         new_unixtime_str = format(new_unixtime_float, ".9f")
 
-        old_unixtime_human_readable = time_human_readable(
-            old_unixtime_int
-        )
-        new_unixtime_human_readable = time_human_readable(
-            new_unixtime_int
-        )
+        old_unixtime_human_readable = time_human_readable(old_unixtime_int)
+        new_unixtime_human_readable = time_human_readable(new_unixtime_int)
 
-        time_replay_protection_minium_unixtime_int, \
-        time_replay_protection_minium_unixtime_human_readable = (
-                time_replay_protection_file_read()
-        )
+        (
+            time_replay_protection_minium_unixtime_int,
+            time_replay_protection_minium_unixtime_human_readable,
+        ) = time_replay_protection_file_read()
 
-        message = ("replay_protection_unixtime: " +
-                   str(time_replay_protection_minium_unixtime_int))
+        message = "replay_protection_unixtime: " + str(
+            time_replay_protection_minium_unixtime_int
+        )
         LOGGER.info(message)
         message = "old_unixtime              : " + old_unixtime_str
         LOGGER.info(message)
@@ -410,17 +415,19 @@ class SdwdateClass(object):
             + time_replay_protection_minium_unixtime_human_readable
         )
         LOGGER.info(message)
-        message = "old_unixtime_human_readable     : " + \
-            old_unixtime_human_readable
+        message = (
+            "old_unixtime_human_readable     : " + old_unixtime_human_readable
+        )
         LOGGER.info(message)
-        message = "new_unixtime_human_readable     : " + \
-            new_unixtime_human_readable
+        message = (
+            "new_unixtime_human_readable     : " + new_unixtime_human_readable
+        )
         LOGGER.info(message)
 
-        time_replay_protection_minium_unixtime_int, \
-        time_replay_protection_minium_unixtime_human_readable = (
-                time_replay_protection_file_read()
-        )
+        (
+            time_replay_protection_minium_unixtime_int,
+            time_replay_protection_minium_unixtime_human_readable,
+        ) = time_replay_protection_file_read()
 
         if new_unixtime_int < time_replay_protection_minium_unixtime_int:
             message = "Time Replay Protection: ERROR. \
@@ -453,7 +460,6 @@ class SdwdateClass(object):
         message = "ok"
         return True
 
-
     def add_or_subtract_nanoseconds(self):
         if randomize_time_config():
             LOGGER.info("Randomizing nanoseconds.")
@@ -462,14 +468,13 @@ class SdwdateClass(object):
             # sign = randint(0, 1)
             sings = [0, 1]
             sign = secrets.choice(sings)
-            seconds_to_add_or_subtract = (
-                float(nanoseconds) / 1000000000
-            )
+            seconds_to_add_or_subtract = float(nanoseconds) / 1000000000
             if sign == 1:
                 seconds_to_add_or_subtract = seconds_to_add_or_subtract * -1
             message = (
-                "randomize                         : %+.9f" %
-                seconds_to_add_or_subtract)
+                "randomize                         : %+.9f"
+                % seconds_to_add_or_subtract
+            )
             LOGGER.info(message)
         else:
             LOGGER.info("Not randomizing nanoseconds.")
@@ -489,10 +494,11 @@ class SdwdateClass(object):
         self.new_diff_in_nanoseconds = self.new_diff_in_seconds * 1000000000
         self.new_diff_in_nanoseconds = int(self.new_diff_in_nanoseconds)
 
-        message = "new time difference               : %+.9f" % \
-            self.new_diff_in_seconds
+        message = (
+            "new time difference               : %+.9f"
+            % self.new_diff_in_seconds
+        )
         LOGGER.info(message)
-
 
     @staticmethod
     def run_sclockadj_and_hwclock(start_event, sclockad_cmd):
@@ -503,8 +509,8 @@ class SdwdateClass(object):
             sclockad_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         message = (
-                "Launched sclockadj into the background. PID: %s"
-                % sclockadj_process.pid
+            "Launched sclockadj into the background. PID: %s"
+            % sclockadj_process.pid
         )
         LOGGER.info(message)
         start_event.set()
@@ -512,27 +518,32 @@ class SdwdateClass(object):
         LOGGER.info("sclockadj done. Syncing hardware clock.")
         subprocess.run(["/usr/bin/leaprun", "sdwdate-sync-hwclock"])
 
-
     def run_sclockadj(self):
         if self.new_diff_in_seconds == 0:
             message = "Time difference = 0. Not setting time."
             LOGGER.info(message)
             return
-        sclockad_cmd = ('/usr/libexec/sdwdate/sclockadj "' +
-                        str(self.new_diff_in_nanoseconds) + '"')
+        sclockad_cmd = (
+            '/usr/libexec/sdwdate/sclockadj "'
+            + str(self.new_diff_in_nanoseconds)
+            + '"'
+        )
         message = (
-            "Gradually adjusting the time by running sclockadj using command: %s" %
-            sclockad_cmd)
+            "Gradually adjusting the time by running sclockadj using command: %s"
+            % sclockad_cmd
+        )
         LOGGER.info(message)
 
         # Run sclockadj in a thread, then run hwclock after it.
         sclockadj_start_event = threading.Event()
-        sclockadj_thread = threading.Thread(target=self.run_sclockadj_and_hwclock, args=(sclockadj_start_event, sclockad_cmd))
+        sclockadj_thread = threading.Thread(
+            target=self.run_sclockadj_and_hwclock,
+            args=(sclockadj_start_event, sclockad_cmd),
+        )
 
         sclockadj_thread.start()
         ## Wait for sclockadj to actually be started, so that sclockadj_process is in a consistent state.
         sclockadj_start_event.wait()
-
 
     def set_time_using_date(self, new_unixtime_str):
         if self.new_diff_in_seconds == 0:
@@ -565,7 +576,8 @@ class SdwdateClass(object):
 
         if bin_date_status.returncode != 0:
             message = "/bin/date returncode: %s" % str(
-                bin_date_status.returncode)
+                bin_date_status.returncode
+            )
             LOGGER.error(message)
             reason = "bin_date_status non-zero exit code"
             exit_code = 1
@@ -573,7 +585,6 @@ class SdwdateClass(object):
 
         LOGGER.info("Time set using /bin/date. Syncing hardware clock.")
         subprocess.run(["/usr/bin/leaprun", "sdwdate-sync-hwclock"])
-
 
     def sdwdate_fetch_loop(self):
         """
@@ -606,7 +617,9 @@ class SdwdateClass(object):
 
         while True:
             self.iteration += 1
-            message = "Running sdwdate fetch loop. iteration: %s" % self.iteration
+            message = (
+                "Running sdwdate fetch loop. iteration: %s" % self.iteration
+            )
             LOGGER.info(message)
 
             # Clear the lists.
@@ -647,9 +660,9 @@ class SdwdateClass(object):
                         write_status(icon, message)
                         return status
                     # if url_index in pool.already_picked_index:
-                        # print("CCC str(len(pool.already_picked_index)): " \
-                        # + \
-                        # str(len(pool.already_picked_index)))
+                    # print("CCC str(len(pool.already_picked_index)): " \
+                    # + \
+                    # str(len(pool.already_picked_index)))
                 already_picked_number = len(pool.already_picked_index)
 
                 message = (
@@ -670,8 +683,9 @@ class SdwdateClass(object):
                 self.list_of_url_random_requested.append(pool.url[url_index])
 
             if len(self.list_of_url_random_requested) <= 0:
-                message = translate_object(
-                    "list_not_built") + translate_object("restart")
+                message = translate_object("list_not_built") + translate_object(
+                    "restart"
+                )
                 stripped_message = sanitize_string(message)
                 icon = "error"
                 status = "error"
@@ -682,23 +696,25 @@ class SdwdateClass(object):
             message = "requested urls %s" % self.list_of_url_random_requested
             LOGGER.info(message)
 
-            self.list_of_urls_returned, \
-                self.list_of_status, \
-                self.list_of_unixtimes, \
-                self.list_of_took_time, \
-                self.list_of_half_took_time, \
-                self.list_off_time_diff_raw_int, \
-                self.list_off_time_diff_lag_cleaned_float, \
-                = get_time_from_servers(
-                    self.pools,
-                    self.list_of_url_random_requested,
-                    proxy_ip,
-                    proxy_port
-                )
+            (
+                self.list_of_urls_returned,
+                self.list_of_status,
+                self.list_of_unixtimes,
+                self.list_of_took_time,
+                self.list_of_half_took_time,
+                self.list_off_time_diff_raw_int,
+                self.list_off_time_diff_lag_cleaned_float,
+            ) = get_time_from_servers(
+                self.pools,
+                self.list_of_url_random_requested,
+                proxy_ip,
+                proxy_port,
+            )
 
             if self.list_of_urls_returned == []:
                 message = translate_object(
-                    "no_value_returned") + translate_object("restart")
+                    "no_value_returned"
+                ) + translate_object("restart")
                 stripped_message = sanitize_string(message)
                 icon = "error"
                 status = "error"
@@ -720,21 +736,30 @@ class SdwdateClass(object):
                 # http://sdolvtfhatvsysc6l34d65ymdwxcujausv7k5jk4cy5ttzhjoi6fzvyd.onion
 
                 if returned_url_item_took_status == "ok":
-                    self.request_unixtimes[returned_url_item_url] = returned_url_item_unixtime
-                    self.request_took_times[returned_url_item_url] = returned_url_item_took_time
+                    self.request_unixtimes[returned_url_item_url] = (
+                        returned_url_item_unixtime
+                    )
+                    self.request_took_times[returned_url_item_url] = (
+                        returned_url_item_took_time
+                    )
                     self.valid_urls.append(returned_url_item_url)
                     self.unixtimes.append(returned_url_item_unixtime)
-                    self.half_took_time_float[returned_url_item_url] = self.list_of_half_took_time[i]
-                    self.time_diff_raw_int[returned_url_item_url] = self.list_off_time_diff_raw_int[i]
-                    self.time_diff_lag_cleaned_float[returned_url_item_url] = self.list_off_time_diff_lag_cleaned_float[i]
+                    self.half_took_time_float[returned_url_item_url] = (
+                        self.list_of_half_took_time[i]
+                    )
+                    self.time_diff_raw_int[returned_url_item_url] = (
+                        self.list_off_time_diff_raw_int[i]
+                    )
+                    self.time_diff_lag_cleaned_float[returned_url_item_url] = (
+                        self.list_off_time_diff_lag_cleaned_float[i]
+                    )
                 else:
                     self.failed_urls.append(returned_url_item_url)
 
             if self.iteration >= 2:
                 if len(self.list_of_status) >= 3:
                     if self.general_timeout_error(self.list_of_status):
-                        message = translate_object(
-                            "general_timeout_error")
+                        message = translate_object("general_timeout_error")
                         stripped_message = sanitize_string(message)
                         icon = "error"
                         status = "error"
@@ -788,7 +813,8 @@ class SdwdateClass(object):
                             self.time_diff_lag_cleaned_float[url]
                         )
                         self.pools_lag_cleaned_diff.append(
-                            time_diff_lag_cleaned_int)
+                            time_diff_lag_cleaned_int
+                        )
 
                         message = ""
                         message += "pool " + str(pool_number)
@@ -820,7 +846,6 @@ class SdwdateClass(object):
         write_status(icon, message)
         return status
 
-
     def wait_sleep(self):
         # If we make the sleep period configurable one day, we need to
         # advice the user to also adjust WatchdogSec= in sdwdate's systemd
@@ -833,7 +858,9 @@ class SdwdateClass(object):
         # self.sleep_time_seconds = randint(
         # sleep_time_minimum_seconds, sleep_time_maximum_seconds
         # )
-        values = list(range(sleep_time_minimum_seconds, sleep_time_maximum_seconds))
+        values = list(
+            range(sleep_time_minimum_seconds, sleep_time_maximum_seconds)
+        )
         self.sleep_time_seconds = secrets.choice(values)
 
         sleep_time_minutes = self.sleep_time_seconds / 60
@@ -849,7 +876,7 @@ class SdwdateClass(object):
 
         SDNOTIFY_OBJECT.notify("WATCHDOG=1")
 
-        #nanoseconds = randint(0, self.range_nanoseconds)
+        # nanoseconds = randint(0, self.range_nanoseconds)
         nanoseconds = secrets.choice(self.range_nanoseconds)
 
         if self.sleep_time_seconds >= 10:
@@ -862,11 +889,13 @@ class SdwdateClass(object):
         # python's time.sleep(self.sleep_time_seconds).
         # The latter uses the system clock for its inactive state time.
         # It becomes utterly confused when sclockadj is running.
-        sleep_cmd = ("sleep" +
-                     " " +
-                     str(self.sleep_time_seconds) +
-                     "." +
-                     str(nanoseconds))
+        sleep_cmd = (
+            "sleep"
+            + " "
+            + str(self.sleep_time_seconds)
+            + "."
+            + str(nanoseconds)
+        )
         message = "running command: " + sleep_cmd
         LOGGER.info(message)
 
@@ -876,7 +905,6 @@ class SdwdateClass(object):
         global sleep_process
         sleep_process = Popen(sleep_cmd)
         sleep_process.wait()
-
 
     def check_clock_skew(self):
         unixtime_after_sleep = int(time.time())
@@ -896,13 +924,12 @@ class SdwdateClass(object):
         else:
             message = (
                 "Clock got changed by something other than sdwdate. \
-                sleep_time_seconds: " +
-                str(
-                    self.sleep_time_seconds) +
-                " time_delta: " +
-                str(time_delta) +
-                " time_passed: " +
-                str(time_passed)
+                sleep_time_seconds: "
+                + str(self.sleep_time_seconds)
+                + " time_delta: "
+                + str(time_delta)
+                + " time_passed: "
+                + str(time_passed)
             )
             LOGGER.warning(message)
 
@@ -926,7 +953,8 @@ def global_files():
 
     # Sanity test.
     sdwdate_status_files_folder_split = os.path.split(
-        sdwdate_status_files_folder)
+        sdwdate_status_files_folder
+    )
 
     # Workaround for an apparmor issue.
     # See /etc/apparmor.d/usr.bin.sdwdate for /var/lib/sdwdate-forbidden-temp
@@ -942,8 +970,7 @@ def global_files():
     status_file_path = sdwdate_status_files_folder + "/status"
 
     global sleep_long_file_path
-    sleep_long_file_path = \
-        sdwdate_status_files_folder + "/sleep_long"
+    sleep_long_file_path = sdwdate_status_files_folder + "/sleep_long"
 
     global fail_file_path
     fail_file_path = sdwdate_status_files_folder + "/fail"
@@ -959,8 +986,8 @@ def global_files():
 
     global sdwdate_time_replay_protection_utc_unixtime
     sdwdate_time_replay_protection_utc_unixtime = (
-        sdwdate_persistent_files_folder +
-        "/time-replay-protection-utc-unixtime")
+        sdwdate_persistent_files_folder + "/time-replay-protection-utc-unixtime"
+    )
 
     global sdwdate_time_replay_protection_utc_humanreadable
     sdwdate_time_replay_protection_utc_humanreadable = (
@@ -981,19 +1008,17 @@ def global_files():
             + str(sdwdate_status_files_folder_split)
         )
         print(
-            "ERROR: sdwdate_status_files_folder: " +
-            sdwdate_status_files_folder)
+            "ERROR: sdwdate_status_files_folder: " + sdwdate_status_files_folder
+        )
         reason = "home folder does not end with /sdwdate"
         exit_code = 1
         exit_handler(exit_code, reason)
 
     Path(sdwdate_status_files_folder).mkdir(parents=True, exist_ok=True)
     # Sanity test. Should be already created by systemd-tmpfiles.
-    Path(sdwdate_persistent_files_folder).mkdir(
-        parents=True, exist_ok=True)
+    Path(sdwdate_persistent_files_folder).mkdir(parents=True, exist_ok=True)
     # Sanity test. Should be already created by systemd-tmpfiles.
-    Path(sdwdate_forbidden_temp_files_folder).mkdir(
-        parents=True, exist_ok=True)
+    Path(sdwdate_forbidden_temp_files_folder).mkdir(parents=True, exist_ok=True)
 
     # Without this python-requests (url_to_unixtime) would try to write to
     # for example "/xb2e9wyl" instead of
@@ -1021,7 +1046,9 @@ def main():
     LOGGER.addHandler(console_handler)
 
     my_pid = os.getpid()
-    pid_message = "sdwdate (Secure Distributed Web Date) started. PID: %s" % my_pid
+    pid_message = (
+        "sdwdate (Secure Distributed Web Date) started. PID: %s" % my_pid
+    )
     LOGGER.info(pid_message)
     msg = "https://www.kicksecure.com/wiki/sdwdate"
     LOGGER.info(pid_message)

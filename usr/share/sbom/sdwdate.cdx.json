@@ -1,0 +1,174 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "pkg:deb/debian/adduser",
+      "name": "adduser",
+      "purl": "pkg:deb/debian/adduser",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/bc",
+      "name": "bc",
+      "purl": "pkg:deb/debian/bc",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/gcc",
+      "name": "gcc",
+      "purl": "pkg:deb/debian/gcc",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/helper-scripts",
+      "name": "helper-scripts",
+      "purl": "pkg:deb/debian/helper-scripts",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/libc6-dev",
+      "name": "libc6-dev",
+      "purl": "pkg:deb/debian/libc6-dev",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/privleap",
+      "name": "privleap",
+      "purl": "pkg:deb/debian/privleap",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/python3",
+      "name": "python3",
+      "purl": "pkg:deb/debian/python3",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/python3-dateutil",
+      "name": "python3-dateutil",
+      "purl": "pkg:deb/debian/python3-dateutil",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/python3-requests",
+      "name": "python3-requests",
+      "purl": "pkg:deb/debian/python3-requests",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/python3-sdnotify",
+      "name": "python3-sdnotify",
+      "purl": "pkg:deb/debian/python3-sdnotify",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/python3-socks",
+      "name": "python3-socks",
+      "purl": "pkg:deb/debian/python3-socks",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/python3-stem",
+      "name": "python3-stem",
+      "purl": "pkg:deb/debian/python3-stem",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/tor",
+      "name": "tor",
+      "purl": "pkg:deb/debian/tor",
+      "type": "library"
+    },
+    {
+      "bom-ref": "pkg:deb/debian/util-linux-extra",
+      "name": "util-linux-extra",
+      "purl": "pkg:deb/debian/util-linux-extra",
+      "type": "library"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:deb/debian/adduser"
+    },
+    {
+      "ref": "pkg:deb/debian/bc"
+    },
+    {
+      "ref": "pkg:deb/debian/gcc"
+    },
+    {
+      "ref": "pkg:deb/debian/helper-scripts"
+    },
+    {
+      "ref": "pkg:deb/debian/libc6-dev"
+    },
+    {
+      "ref": "pkg:deb/debian/privleap"
+    },
+    {
+      "ref": "pkg:deb/debian/python3"
+    },
+    {
+      "ref": "pkg:deb/debian/python3-dateutil"
+    },
+    {
+      "ref": "pkg:deb/debian/python3-requests"
+    },
+    {
+      "ref": "pkg:deb/debian/python3-sdnotify"
+    },
+    {
+      "ref": "pkg:deb/debian/python3-socks"
+    },
+    {
+      "ref": "pkg:deb/debian/python3-stem"
+    },
+    {
+      "dependsOn": [
+        "pkg:deb/debian/adduser",
+        "pkg:deb/debian/bc",
+        "pkg:deb/debian/gcc",
+        "pkg:deb/debian/helper-scripts",
+        "pkg:deb/debian/libc6-dev",
+        "pkg:deb/debian/privleap",
+        "pkg:deb/debian/python3",
+        "pkg:deb/debian/python3-dateutil",
+        "pkg:deb/debian/python3-requests",
+        "pkg:deb/debian/python3-sdnotify",
+        "pkg:deb/debian/python3-socks",
+        "pkg:deb/debian/python3-stem",
+        "pkg:deb/debian/tor",
+        "pkg:deb/debian/util-linux-extra"
+      ],
+      "ref": "pkg:deb/debian/sdwdate@3:29.6-1"
+    },
+    {
+      "ref": "pkg:deb/debian/tor"
+    },
+    {
+      "ref": "pkg:deb/debian/util-linux-extra"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "bom-ref": "pkg:deb/debian/sdwdate@3:29.6-1",
+      "name": "sdwdate",
+      "purl": "pkg:deb/debian/sdwdate@3:29.6-1",
+      "type": "application",
+      "version": "3:29.6-1"
+    },
+    "properties": [
+      {
+        "name": "genmkfile:sbom:source",
+        "value": "debian/control top-level dependencies (Pre-Depends, Depends)"
+      },
+      {
+        "name": "genmkfile:sbom:tier",
+        "value": "declared-floor"
+      }
+    ]
+  },
+  "specVersion": "1.6",
+  "version": 1
+}

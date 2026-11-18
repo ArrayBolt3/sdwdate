@@ -153,21 +153,32 @@
   "metadata": {
     "component": {
       "bom-ref": "pkg:deb/debian/sdwdate@3:29.6-1",
+      "licenses": [
+        {
+          "license": {
+            "acknowledgement": "declared",
+            "id": "AGPL-3.0-or-later"
+          }
+        }
+      ],
       "name": "sdwdate",
+      "properties": [
+        {
+          "name": "section",
+          "value": "net"
+        }
+      ],
       "purl": "pkg:deb/debian/sdwdate@3:29.6-1",
-      "type": "application",
+      "type": "library",
       "version": "3:29.6-1"
     },
     "properties": [
       {
         "name": "genmkfile:sbom:source",
         "value": "debian/control top-level dependencies (Pre-Depends, Depends)"
-      },
-      {
-        "name": "genmkfile:sbom:tier",
-        "value": "declared-floor"
       }
-    ]
+    ],
+    "timestamp": "2026-10-02T08:30:53+00:00"
   },
   "specVersion": "1.6",
   "version": 1

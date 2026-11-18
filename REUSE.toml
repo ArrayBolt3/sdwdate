@@ -6,6 +6,7 @@ version = 1
 path = [
   "debian/**",
   "auto-generated-man-pages/**",
+  "usr/share/sbom/**",
   "changelog.upstream",
   "config-test.txt",
   ".github/**",

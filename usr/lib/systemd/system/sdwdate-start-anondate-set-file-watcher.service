@@ -36,5 +36,25 @@ Restart=always
 AmbientCapabilities=CAP_SYS_TIME
 CapabilityBoundingSet=CAP_SYS_TIME
 
+## W^X hardening (Layer 1 anonymous + Layer 2 file-backed). MemoryDenyWriteExecute
+## denies anon W+X and mprotect/shmat gaining PROT_EXEC; SystemCallArchitectures=
+## native closes the secondary-ABI (i386) bypass; LockPersonality blocks the
+## READ_IMPLIES_EXEC bypass; SystemCallFilter=~memfd_create kills the memfd
+## bypass; NoExecPaths marks the writable dirs non-executable (file-backed exec
+## MDWE does not cover). AmbientCapabilities=CAP_SYS_TIME is retained for the clock
+## set. Pure bash + inotifywait, no JIT.
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+LockPersonality=true
+SystemCallFilter=~memfd_create
+NoExecPaths=/run /tmp /var/tmp /dev/shm
+
+## Defense-in-depth (separate axis from W^X): NoNewPrivileges blocks this
+## daemon and its children from gaining privileges (setuid/setgid, file
+## capabilities, AppArmor non-subset Px). The clock set uses the already-
+## granted ambient CAP_SYS_TIME, not a privilege gain (sibling sdwdate.service
+## runs NoNewPrivileges=true with the same ambient cap).
+NoNewPrivileges=yes
+
 [Install]
 WantedBy=multi-user.target

@@ -102,6 +102,7 @@ def get_comment(pools, remote):
             url_comment = pool_item.comment[url_index]
             break
         except BaseException:
+            # remote not in this pool; try the next pool
             pass
     return url_comment
 
@@ -112,6 +113,7 @@ def get_comment_pool_single(pool, remote):
         url_index = pool.url.index(remote)
         url_comment = pool.comment[url_index]
     except BaseException:
+        # remote not found in pool; keep the default "unknown-comment"
         pass
     return url_comment
 

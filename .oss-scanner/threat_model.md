@@ -14,8 +14,11 @@ for Whonix). sdwdate obtains the current time by connecting to multiple
 untrusted Tor onion services, obtaining the HTTP header timestamps from them,
 and normalizing them to a likely-correct current time. This avoids the MITM
 vulnerabilities of traditional NTP, uses stronger encryption than NTS, and
-prevents a single compromised or malicious time server from affecting the
-system's time.
+bounds the influence of any single compromised or malicious time server:
+because the result is the median of the pool, one malicious server cannot move
+the time outside the range spanned by the honest servers' offsets, though it
+can still shift it within that honest range by supplying an offset that
+becomes the median.
 
 ## Relevant vulnerability classes:
 

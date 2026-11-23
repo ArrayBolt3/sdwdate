@@ -70,6 +70,16 @@ RestrictAddressFamilies=AF_UNIX AF_INET
 RestrictNamespaces=true
 SystemCallArchitectures=native
 
+## W^X hardening: MemoryDenyWriteExecute denies writable-and-executable
+## anonymous mappings and any mmap/mprotect that gains PROT_EXEC (enforced via
+## prctl PR_SET_MDWE on current kernels -- observed errno EACCES; seccomp EPERM
+## fallback on older ones). The anonymous memfd exec-bypass is closed by the
+## SystemCallFilter allow-list below omitting memfd_create (the call is
+## SIGSYS-killed). File-backed executable mappings are out of MDWE's scope -- the
+## AppArmor profiles govern those. sdwdate never JITs (no ctypes callbacks /
+## cffi / JIT in it or its dependencies).
+MemoryDenyWriteExecute=true
+
 ## Split into multiple lines to fix lintian warning very-long-line-length-in-source-file.
 SystemCallFilter=\
 wait4 select futex read stat close openat fstat lseek mmap rt_sigaction \

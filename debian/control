@@ -2,7 +2,7 @@
 ## SPDX-License-Identifier: AGPL-3.0-or-later
 
 Source: sdwdate
-Section: misc
+Section: net
 Priority: optional
 Maintainer: Patrick Schleizer <adrelanos@kicksecure.com>
 Build-Depends: debhelper (>= 13.11.6), debhelper-compat (= 13),

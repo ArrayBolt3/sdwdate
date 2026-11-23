@@ -1,5 +1,5 @@
-## SPDX-FileCopyrightText: ENCRYPTED SUPPORT LLC <adrelanos@kicksecure.com>
-## SPDX-License-Identifier: AGPL-3.0-or-later
+## Copyright (C) 2026 - 2026 ENCRYPTED SUPPORT LLC <adrelanos@whonix.org>
+## See the file COPYING for copying conditions.
 
 ## AI-Assisted
 
@@ -15,7 +15,7 @@
 ## coverity.apt-packages, coverity.build-command.
 ##
 ## Reusable docs:
-## https://github.com/org-ai-assisted/developer-meta-files/blob/master/.github/workflows/reusable-coverity.yml
+## https://github.com/org-ai-assisted/developer-meta-files/blob/ai/.github/workflows/reusable-coverity.yml
 
 name: Coverity
 
@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   coverity:
-    uses: org-ai-assisted/developer-meta-files/.github/workflows/reusable-coverity.yml@master
+    uses: org-ai-assisted/developer-meta-files/.github/workflows/reusable-coverity.yml@ai
     secrets:
       COVERITY_SCAN_TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
       COVERITY_SCAN_EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}

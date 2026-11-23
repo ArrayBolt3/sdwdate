@@ -3,17 +3,9 @@
 ## SPDX-FileCopyrightText: ENCRYPTED SUPPORT LLC <adrelanos@kicksecure.com>
 ## SPDX-License-Identifier: AGPL-3.0-or-later
 
-import sys
 from sdwdate.remote_times import get_time_from_servers
 
-list_of_urls_returned, \
-list_of_status, \
-list_of_unixtimes, \
-list_of_took_time, \
-list_of_half_took_time, \
-list_off_time_diff_raw_int, \
-list_off_time_diff_lag_cleaned_float, \
-= get_time_from_servers(
+get_time_from_servers(
    [ 0, 1, 2 ],
    [
       "https://p53lf57qovyuvwsc6xnrppyply3vtqm7l6pcobkmyqsiofyeznfu5uqd.onion",

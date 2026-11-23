@@ -15,7 +15,7 @@ import signal
 import shlex
 import time
 import subprocess
-from subprocess import Popen, PIPE
+from subprocess import PIPE
 import concurrent.futures
 
 from .config import get_comment
@@ -170,20 +170,13 @@ def check_remote(i, pools, remote, process, status, end_unixtime, took_time, std
     # Test:
     # status = "done"
 
-    if status == "timeout":
-        cast_success = False
-    elif status == "error":
-        cast_success = False
-    else:
+    if status != "timeout" and status != "error":
         try:
             # cast str unixtime_maybe to int remote_unixtime
             remote_unixtime = int(unixtime_maybe)
-            cast_success = True
         except BaseException:
-            cast_success = False
             status = "error"
             error_message = str(sys.exc_info()[0])
-            status = "error"
             print("* ERROR: Could not cast to int. error_message: " + error_message)
 
     # Test:

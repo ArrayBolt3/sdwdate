@@ -3,10 +3,6 @@
 ## SPDX-FileCopyrightText: ENCRYPTED SUPPORT LLC <adrelanos@kicksecure.com>
 ## SPDX-License-Identifier: AGPL-3.0-or-later
 
-import os
-import time
-import datetime
-from sdwdate.remote_times import get_time_from_servers
 from sdwdate.config import read_pools
 from sdwdate.config import get_comment_pool_single
 from sdwdate.proxy_settings import proxy_settings

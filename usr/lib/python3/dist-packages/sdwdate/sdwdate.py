@@ -15,12 +15,8 @@ SDNOTIFY_OBJECT.notify("STATUS=Starting...")
 from pathlib import Path
 import json
 import subprocess
-from subprocess import Popen
-# from random import randint
 import secrets
-from datetime import datetime
 import time
-import glob
 import os
 import signal
 import logging
@@ -90,16 +86,6 @@ def kill_sclockadj():
     except BaseException:
         message = "sclockadj process not running, ok."
         LOGGER.info(message)
-
-
-#def kill_sleep_process():
-#    try:
-#        sleep_process.kill()
-#        message = "Terminated sleep process."
-#        LOGGER.info(message)
-#    except BaseException:
-#        message = "sleep process not running, ok."
-#        LOGGER.info(message)
 
 
 def signal_handler(sig, frame):
@@ -259,7 +245,6 @@ class SdwdateClass(object):
             previous_messsage = joint_message
 
             LOGGER.info("PREPARATION: running onion-time-pre-script...")
-            message = joint_message.strip()
             LOGGER.info(sanitize_string(joint_message))
 
             if preparation_status.returncode == 1:
@@ -467,7 +452,6 @@ class SdwdateClass(object):
         file_object = open(status_success_path, "w")
         file_object.close()
 
-        message = "ok"
         return True
 
 
@@ -663,10 +647,6 @@ class SdwdateClass(object):
                         LOGGER.error(stripped_message)
                         write_status(icon, message)
                         return status
-                    # if url_index in pool.already_picked_index:
-                        # print("CCC str(len(pool.already_picked_index)): " \
-                        # + \
-                        # str(len(pool.already_picked_index)))
                 already_picked_number = len(pool.already_picked_index)
 
                 message = (
@@ -775,8 +755,6 @@ class SdwdateClass(object):
                 LOGGER.error(stripped_message)
                 write_status(icon, message)
                 return status
-
-            old_unixtime = time.time()
 
             for pool in self.pools:
                 if pool.done:
@@ -1036,6 +1014,8 @@ def main():
     #global sleep_process
     #sleep_process = []
     global sclockadj_process
+    # Placeholder so kill_sclockadj() has a defined global before sclockadj
+    # first runs.
     sclockadj_process = []
 
     global LOGGER
@@ -1053,7 +1033,7 @@ def main():
     pid_message = "sdwdate (Secure Distributed Web Date) started. PID: %s" % my_pid
     LOGGER.info(pid_message)
     msg = "https://www.kicksecure.com/wiki/sdwdate"
-    LOGGER.info(pid_message)
+    LOGGER.info(msg)
 
     if os.geteuid() == 0:
         do_not_run_as_root_message = "Exit error... \

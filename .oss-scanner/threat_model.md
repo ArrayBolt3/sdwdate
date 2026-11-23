@@ -14,11 +14,8 @@ for Whonix). sdwdate obtains the current time by connecting to multiple
 untrusted Tor onion services, obtaining the HTTP header timestamps from them,
 and normalizing them to a likely-correct current time. This avoids the MITM
 vulnerabilities of traditional NTP, uses stronger encryption than NTS, and
-bounds the influence of any single compromised or malicious time server:
-because the result is the median of the pool, one malicious server cannot move
-the time outside the range spanned by the honest servers' offsets, though it
-can still shift it within that honest range by supplying an offset that
-becomes the median.
+prevents a single compromised or malicious time server from affecting the
+system's time beyond bounds set by other servers.
 
 ## Relevant vulnerability classes:
 
@@ -69,7 +66,7 @@ Additionally, behavior of any kind that allow a local user to:
 
 are considered vulnerabilities. The first, fourth, and fifth kinds of
 vulnerabilities are considered high-severify, while the second and third kinds'
-severity deepnds on what files can be read and written.
+severity depends on what files can be read and written.
 
 Some behaviors that are explicitly not considered vulnerabilities are:
 

@@ -873,7 +873,7 @@ class SdwdateClass(object):
         #sleep_cmd = shlex.split(sleep_cmd)
         #
         #global sleep_process
-        #sleep_process = Popen(sleep_cmd)
+        #sleep_process = subprocess.Popen(sleep_cmd)
         #sleep_process.wait()
         time.sleep(
             float(self.sleep_time_seconds) + (float(nanoseconds) / 1000000000)

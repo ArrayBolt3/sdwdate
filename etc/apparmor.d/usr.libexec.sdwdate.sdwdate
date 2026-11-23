@@ -23,10 +23,6 @@
 
   deny /usr/sbin/ldconfig rx,
 
-  ## leaprun (privleap client, below) resolves its own euid via getpwuid() to find
-  ## its per-uid comm socket /run/privleapd/comm/<uid>; a passwd/nsswitch deny makes
-  ## that lookup fail, so leaprun aborts "Could not connect to privleapd" and sdwdate
-  ## never syncs time. passwd/nsswitch are world-readable; reading them leaks nothing.
   /etc/nsswitch.conf r,
   /etc/passwd r,
   /etc/sdwdate.d/ r,
@@ -34,10 +30,6 @@
   /etc/tor/ r,
   /etc/tor/** r,
   /run/tor/control.authcookie r,
-  ## W^X Layer 2 (file-backed exec): rw only, never m. sdwdate execs trusted
-  ## helpers from /usr (the mrix rules below), never from /tmp, so dropping m
-  ## closes the file-backed executable-mapping vector that MemoryDenyWriteExecute
-  ## (anonymous mappings only) does not cover.
   /tmp/* rw,
   /tmp/** rw,
   /usr/lib/python3/dist-packages/sdwdate/timesanitycheck.py rix,
